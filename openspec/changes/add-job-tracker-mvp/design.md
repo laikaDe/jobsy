@@ -397,7 +397,9 @@ To go back to local SQLite, revert step 2.
 - [`prisma db push` on every Vercel build can drop columns on destructive schema changes] → Prisma refuses data-loss pushes without `--accept-data-loss`; build fails loudly instead. Adopt `prisma migrate` if the schema ever gets risky.
 - [Supabase free projects pause after ~1 week idle] → First request after a pause fails; un-pause from the Supabase dashboard. Acceptable for personal use.
 - [Basic auth is minimal] → Over HTTPS (Vercel default) it's adequate for one person; not intended as real account security.
-- [Prisma / Next major-version drift] → Pin majors at scaffold time. On Prisma 7+, the datasource URL moves to `prisma.config.ts` and a driver adapter (`@prisma/adapter-better-sqlite3` / `@prisma/adapter-pg`) is required; on Next ≤15 use `middleware.ts` instead of `proxy.ts`. Task 1.1 checks this.
+- [Prisma / Next major-version drift] → **Recorded at scaffold (task 1.1, 2026-11-05):**
+  - **Next.js 16.4.5 / React 19.3.0** → use `proxy.ts` (not `middleware.ts`). The scaffold enables `cacheComponents: true`, so the dashboard and board pages must read data dynamically (e.g. inside `<Suspense>`, or by calling `connection()` before the Prisma query) so they never serve stale numbers. Check `node_modules/next/dist/docs/` before writing Next APIs.
+  - **Prisma: pin `prisma@7.10.1` + `@prisma/client@7.10.1`.** npm's `latest` tag for the `prisma` CLI currently points to `8.0.0-rc.30`, so a bare `npm i prisma` would pull a release candidate that doesn't match the client. With Prisma 7, the datasource URL moves to `prisma.config.ts` (the `url = env(...)` line leaves `schema.prisma`), and `lib/db.ts` needs a driver adapter: `@prisma/adapter-better-sqlite3` for SQLite, `@prisma/adapter-pg` for Supabase.
 - [Ghosted is derived, not stored] → No way to mark a job ghosted manually or un-ghost it except by moving it. Fine for MVP; it auto-clears when the job moves.
 - [Case-insensitive company match scans all companies] → O(n) at personal scale (< 1k rows) is negligible.
 

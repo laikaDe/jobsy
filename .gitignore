@@ -1,6 +1,27 @@
-node_modules/
-.next/
-.env
-.env*.local
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+/build
+next-env.d.ts
+*.tsbuildinfo
+
+# env files (.env.example is committed)
+.env*
+!.env.example
+
+# local database
 prisma/*.db*
+
+# misc
 .DS_Store
+*.pem
+.vercel
+npm-debug.log*

@@ -3,7 +3,7 @@
 ## 1. Scaffold
 
 - [x] 1.1 Run `create-next-app` (TypeScript, App Router, Tailwind, ESLint, no `src/`) at repo root without clobbering `openspec/`/`.claude/`; record installed Next and Prisma majors and apply the version notes in design.md → Risks (`proxy.ts` vs `middleware.ts`, Prisma 7 config/adapter). Verify `npm run dev` serves the starter page on :3000
-- [ ] 1.2 Install `prisma@7.10.1 @prisma/client@7.10.1 zod @dnd-kit/core sonner` and dev `vitest`; `npx shadcn init` and add `button card dialog alert-dialog dropdown-menu input textarea select label badge sonner`. Verify `npm run build` passes
+- [x] 1.2 Install `prisma@7.10.1 @prisma/client@7.10.1 zod @dnd-kit/core sonner` and dev `vitest`; `npx shadcn init` and add `button card dialog alert-dialog dropdown-menu input textarea select label badge sonner`. Verify `npm run build` passes
 - [ ] 1.3 Add `.env.example` exactly as in design §4, `.gitignore` entries for `.env` and `prisma/*.db*`, and the `package.json` scripts from design §4. Verify `cp .env.example .env` and `npm run test` (no tests yet) exit 0
 - [ ] 1.4 Create `README.md` with design §1 (stack, layout, schema) and empty headings for Features, Analytics, Deployment. Verify it renders the schema block correctly
 

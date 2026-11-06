@@ -329,14 +329,14 @@ GHOST_AFTER_DAYS="30"
     "start":     "next start",
     "lint":      "eslint",
     "db:push":   "prisma db push && prisma generate",
-    "db:studio": "prisma studio",
+    "db:studio": "prisma studio --url \"file://$PWD/prisma/dev.db\"",
     "test":      "vitest run --passWithNoTests",
     "vercel-build": "prisma db push && prisma generate && next build"
   }
 }
 ```
 
-Prisma 7: `db push` no longer runs `generate`, so the scripts chain both explicitly. `prisma7.config.ts` loads `.env` via `import "dotenv/config"`, because Prisma no longer reads `.env` on its own.
+Prisma 7: `db push` no longer runs `generate`, so the scripts chain both explicitly. `prisma7.config.ts` loads `.env` via `import "dotenv/config"`, because Prisma no longer reads `.env` on its own. `db:studio` passes an absolute `file://` URL because Prisma Studio 7.10.1 picks the database type from the text before `://`, so it rejects the relative `file:./prisma/dev.db` that the app and `db push` accept. On Supabase, run plain `prisma studio`.
 
 ### Option A — Local, npm (fastest)
 

@@ -53,8 +53,10 @@ lib/
   analytics.ts            # pure metric functions
   validation.ts           # zod jobInput schema
   config.ts               # GHOST_AFTER_DAYS parsing
-proxy.ts                  # optional Basic auth (middleware.ts on Next ≤15)
+proxy.ts                  # optional Basic auth (Next 16)
 prisma/schema.prisma
+prisma7.config.ts         # Prisma 7 CLI config: schema path + DATABASE_URL
+generated/prisma/         # Prisma client output (gitignored)
 tests/analytics.test.ts
 tests/status.test.ts
 ```
@@ -63,12 +65,13 @@ tests/status.test.ts
 
 ```prisma
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated/prisma"   // gitignored; import from "@/generated/prisma/client"
 }
 
 datasource db {
-  provider = "sqlite"          // switch to "postgresql" for Supabase (see §4)
-  url      = env("DATABASE_URL")
+  provider = "sqlite"   // switch to "postgresql" for Supabase (see §4)
+  // Prisma 7: no url here — it lives in prisma7.config.ts (datasource.url = env DATABASE_URL)
 }
 
 model Company {
@@ -299,8 +302,8 @@ Notes:
 
 ```bash
 # ── Database ──────────────────────────────────────────────
-# Local (SQLite, default). Path is relative to prisma/schema.prisma.
-DATABASE_URL="file:./dev.db"
+# Local (SQLite, default). Path is relative to the project root (Prisma 7).
+DATABASE_URL="file:./prisma/dev.db"
 
 # Hosted (Supabase Postgres). Use the *pooled* connection string (port 6543) here…
 # DATABASE_URL="postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
@@ -320,17 +323,20 @@ GHOST_AFTER_DAYS="30"
 ```json
 {
   "scripts": {
-    "setup":     "npm install && cp -n .env.example .env; prisma db push",
+    "setup":     "npm install && cp -n .env.example .env; prisma db push && prisma generate",
     "dev":       "next dev",
     "build":     "prisma generate && next build",
     "start":     "next start",
-    "db:push":   "prisma db push",
+    "lint":      "eslint",
+    "db:push":   "prisma db push && prisma generate",
     "db:studio": "prisma studio",
-    "test":      "vitest run",
-    "vercel-build": "prisma generate && prisma db push && next build"
+    "test":      "vitest run --passWithNoTests",
+    "vercel-build": "prisma db push && prisma generate && next build"
   }
 }
 ```
+
+Prisma 7: `db push` no longer runs `generate`, so the scripts chain both explicitly. `prisma7.config.ts` loads `.env` via `import "dotenv/config"`, because Prisma no longer reads `.env` on its own.
 
 ### Option A — Local, npm (fastest)
 
@@ -362,7 +368,7 @@ ENV NODE_ENV=production DATABASE_URL="file:/data/jobsy.db"
 COPY --from=build /app ./
 VOLUME /data
 EXPOSE 3000
-CMD ["sh", "-c", "npx prisma db push --skip-generate && npm start"]
+CMD ["sh", "-c", "npx prisma db push && npm start"]   # client already generated at build
 ```
 
 ```bash
@@ -375,19 +381,14 @@ Data persists in the `jobsy-data` volume across rebuilds.
 ### Option C — Free hosted: Vercel + Supabase
 
 1. **Supabase** → New project (free) → *Connect* → copy the pooled (6543) and direct (5432) URIs.
-2. In `prisma/schema.prisma` change the datasource:
-   ```prisma
-   datasource db {
-     provider  = "postgresql"
-     url       = env("DATABASE_URL")
-     directUrl = env("DIRECT_URL")
-   }
-   ```
-   Commit.
+2. Switch to Postgres and commit:
+   - `prisma/schema.prisma`: `provider = "postgresql"`.
+   - `prisma7.config.ts`: `datasource.url = process.env.DIRECT_URL ?? process.env.DATABASE_URL`, so the CLI (`db push`) uses the direct connection.
+   - `lib/db.ts`: use `@prisma/adapter-pg` with the pooled `DATABASE_URL` instead of the SQLite adapter.
 3. **Vercel** → Import the Git repo → Environment Variables: `DATABASE_URL`, `DIRECT_URL`, `APP_PASSWORD` (**required** — the URL is public), `GHOST_AFTER_DAYS`.
 4. Build Command: `npm run vercel-build`. Deploy.
 
-To go back to local SQLite, revert step 2.
+To go back to local SQLite, revert step 2. (Task 2.1 can make `lib/db.ts` choose the adapter from the `DATABASE_URL` scheme, which turns this step into a one-line schema edit.)
 
 ---
 

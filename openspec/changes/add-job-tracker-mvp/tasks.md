@@ -4,12 +4,12 @@
 
 - [x] 1.1 Run `create-next-app` (TypeScript, App Router, Tailwind, ESLint, no `src/`) at repo root without clobbering `openspec/`/`.claude/`; record installed Next and Prisma majors and apply the version notes in design.md → Risks (`proxy.ts` vs `middleware.ts`, Prisma 7 config/adapter). Verify `npm run dev` serves the starter page on :3000
 - [x] 1.2 Install `prisma@7.10.1 @prisma/client@7.10.1 zod @dnd-kit/core sonner` and dev `vitest`; `npx shadcn init` and add `button card dialog alert-dialog dropdown-menu input textarea select label badge sonner`. Verify `npm run build` passes
-- [ ] 1.3 Add `.env.example` exactly as in design §4, `.gitignore` entries for `.env` and `prisma/*.db*`, and the `package.json` scripts from design §4. Verify `cp .env.example .env` and `npm run test` (no tests yet) exit 0
-- [ ] 1.4 Create `README.md` with design §1 (stack, layout, schema) and empty headings for Features, Analytics, Deployment. Verify it renders the schema block correctly
+- [x] 1.3 Add `.env.example` exactly as in design §4, `.gitignore` entries for `.env` and `prisma/*.db*`, and the `package.json` scripts from design §4. Verify `cp .env.example .env` and `npm run test` (no tests yet) exit 0
+- [x] 1.4 Create `README.md` with design §1 (stack, layout, schema) and empty headings for Features, Analytics, Deployment. Verify it renders the schema block correctly
 
 ## 2. Data layer
 
-- [ ] 2.1 Write `prisma/schema.prisma` (Company, Job, Interview) from design §1 and `lib/db.ts` PrismaClient singleton. Verify `npm run db:push` creates `prisma/dev.db` and `npm run db:studio` shows three tables
+- [ ] 2.1 Write `prisma/schema.prisma` (Company, Job, Interview) from design §1, `prisma7.config.ts` (`import "dotenv/config"`, `datasource.url`), and `lib/db.ts` PrismaClient singleton using `@prisma/adapter-better-sqlite3`; install `dotenv` + the adapter (pinned to 7.10.1) and change the `build` script to `prisma generate && next build`. Verify `npm run build` still passes, `npm run db:push` creates `prisma/dev.db` and `npm run db:studio` shows three tables
 - [ ] 2.2 Implement `lib/status.ts` (`STATUSES`, `COLUMNS`, `applyStatusChange`) and `tests/status.test.ts` covering spec job-records → Stage timestamps and Date Applied auto-fill scenarios (incl. move-back does not reset, existing date kept, same-status no-op). Verify `npm run test` passes
 - [ ] 2.3 Implement `lib/validation.ts` zod `jobInput` (required Company/Title, http/https URL, length limits, status enum) and `lib/config.ts` (`GHOST_AFTER_DAYS`, default 30). Add tests for "Unknown status rejected", "Missing required field", "Invalid URL". Verify `npm run test` passes
 - [ ] 2.4 Implement `app/actions.ts`: `saveJob` (case-insensitive trimmed company reuse, `applyStatusChange` on status change), `moveJob` (throws on failure), `deleteJob` (cascade interviews, keep company), each calling `revalidatePath("/")` and `("/board")`. Verify via a quick script or Studio: saving " acme " twice reuses one Company; deleting a job leaves its Company

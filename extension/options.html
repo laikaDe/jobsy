@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jobsy Clipper options</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    main { max-width: 480px; margin: 40px auto; padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Jobsy Clipper</h1>
+    <p class="hint">Where the extension saves jobs. Use your local dev server or your deployed Jobsy.</p>
+    <form id="form" novalidate>
+      <label>Jobsy URL
+        <input id="baseUrl" name="baseUrl" type="url" placeholder="http://localhost:3000" required autocomplete="url">
+        <span class="field-error" id="baseUrl-error"></span>
+      </label>
+      <div class="banner warn" id="insecure" hidden>
+        This is plain http to another machine, so the password would be sent unencrypted. Use https if you can.
+      </div>
+      <label>Access password
+        <input id="password" name="password" type="password" autocomplete="current-password">
+        <span class="hint">Only if Jobsy has <code>APP_PASSWORD</code> set. Stored unencrypted in this Chrome profile and never synced.</span>
+      </label>
+      <div class="row">
+        <button class="primary" type="submit">Save</button>
+        <button type="button" id="test">Test connection</button>
+      </div>
+      <div class="banner" id="status" role="status" aria-live="polite"></div>
+    </form>
+  </main>
+  <script type="module" src="options.js"></script>
+</body>
+</html>

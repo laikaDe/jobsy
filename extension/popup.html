@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Save to Jobsy</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { width: 360px; padding: 14px; }
+    main { display: flex; flex-direction: column; gap: 12px; }
+    header { display: flex; justify-content: space-between; align-items: center; }
+    .link { background: none; border: none; padding: 0; text-decoration: underline; cursor: pointer; font-weight: 500; }
+    .actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Save to Jobsy</h1>
+      <button type="button" class="link hint" id="options-link">Options</button>
+    </header>
+
+    <div class="banner info" id="duplicate" hidden>
+      <strong>Already in Jobsy:</strong> <span id="duplicate-text"></span>.
+      <button type="button" class="link" data-open-board>Open board</button>
+    </div>
+    <div class="banner error" id="error" hidden>
+      <span id="error-text"></span>
+      <button type="button" class="link" id="error-options" hidden>Open options</button>
+    </div>
+
+    <form id="form" novalidate>
+      <label>Company *
+        <input name="company" id="company" maxlength="100" autocomplete="off">
+        <span class="field-error" id="company-error"></span>
+      </label>
+      <label>Title *
+        <input name="title" id="title" maxlength="150" autocomplete="off">
+        <span class="field-error" id="title-error"></span>
+      </label>
+      <label>URL
+        <input name="url" id="url" type="url" autocomplete="off">
+        <span class="field-error" id="url-error"></span>
+      </label>
+      <div class="two">
+        <label>Status
+          <select name="status" id="status">
+            <option value="WISHLIST" selected>Wishlist</option>
+            <option value="APPLIED">Applied</option>
+          </select>
+          <span class="field-error" id="status-error"></span>
+        </label>
+      </div>
+      <label>Notes
+        <textarea name="notes" id="notes" maxlength="5000" rows="3"></textarea>
+        <span class="field-error" id="notes-error"></span>
+      </label>
+      <div class="actions">
+        <button type="submit" class="primary" id="save">Save</button>
+      </div>
+    </form>
+
+    <div class="banner ok" id="saved" hidden role="status">
+      <strong>Saved</strong> <span id="saved-text"></span>.
+      <button type="button" class="link" data-open-board>Open board</button>
+    </div>
+  </main>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

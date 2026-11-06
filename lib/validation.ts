@@ -8,8 +8,8 @@ const optionalText = (max: number) =>
 
 export const jobInput = z.object({
   id: z.preprocess(blankToUndefined, z.string().optional()),
-  company: z.string().trim().min(1, "Company is required").max(100, "Keep it under 100 characters"),
-  title: z.string().trim().min(1, "Title is required").max(150, "Keep it under 150 characters"),
+  company: z.string({ error: "Company is required" }).trim().min(1, "Company is required").max(100, "Keep it under 100 characters"),
+  title: z.string({ error: "Title is required" }).trim().min(1, "Title is required").max(150, "Keep it under 150 characters"),
   url: z.preprocess(
     blankToUndefined,
     z.url({ protocol: /^https?$/, error: "Enter a full http(s) URL, e.g. https://example.com/job" }).optional(),

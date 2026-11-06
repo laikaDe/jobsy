@@ -13,11 +13,15 @@ function basicAuthPassword(header: string | null): string | null {
   }
 }
 
-/** Optional single-password gate. No APP_PASSWORD → open. Covers pages and Server Actions. */
+/** Optional single-password gate. No APP_PASSWORD → open. Covers pages, Server Actions and /api. */
 export function proxy(request: NextRequest) {
   const password = process.env.APP_PASSWORD;
   if (!password) return NextResponse.next();
   if (basicAuthPassword(request.headers.get("authorization")) === password) return NextResponse.next();
+  // API clients (the browser extension) get plain JSON with no challenge, so Chrome never shows a login dialog.
+  if (request.nextUrl.pathname.startsWith("/api/")) {
+    return NextResponse.json({ error: "Wrong or missing password" }, { status: 401 });
+  }
   return new NextResponse("Authentication required", {
     status: 401,
     headers: { "WWW-Authenticate": 'Basic realm="jobsy", charset="UTF-8"' },

@@ -45,7 +45,7 @@
 
 ## 8. Deployment
 
-- [ ] 8.1 Add `Dockerfile` and `.dockerignore` (`node_modules`, `.next`, `.env`, `prisma/*.db*`) per design §4 Option B. Verify `docker build` + `docker run -v jobsy-data:/data` serves the app and data survives `docker rm -f` + re-run
+- [x] 8.1 Add `Dockerfile` and `.dockerignore` (`node_modules`, `.next`, `.env`, `prisma/*.db*`) per design §4 Option B. Verify `docker build` + `docker run -v jobsy-data:/data` serves the app and data survives `docker rm -f` + re-run
 - [x] 8.2 Fill README "Deployment" with Options A/B/C and the `.env.example` block from design §4. Verify Option A by running `npm run setup && npm run dev` in a fresh clone
 
 ## 9. Integration check

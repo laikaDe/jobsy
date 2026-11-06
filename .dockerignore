@@ -1,0 +1,13 @@
+node_modules
+.next
+.env
+.env*.local
+prisma/*.db*
+generated
+.git
+.vercel
+coverage
+openspec
+.claude
+Dockerfile
+.dockerignore

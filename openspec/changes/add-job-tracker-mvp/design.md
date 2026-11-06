@@ -36,19 +36,25 @@
 
 ```
 app/
-  layout.tsx              # nav: Dashboard | Board, <Toaster/>
+  layout.tsx              # SiteHeader (nav + Add job) and <Toaster/>
   page.tsx                # Dashboard (Server Component)
   board/page.tsx          # Kanban (Server Component → <Board/> client)
   actions.ts              # "use server": saveJob, moveJob, deleteJob
 components/
+  SiteHeader.tsx          # nav + global Add job (reads company names)
+  NavLinks.tsx
   board/Board.tsx         # client: DndContext + optimistic state
   board/Column.tsx
   board/JobCard.tsx       # card + "Move to…" DropdownMenu
   job-form/JobFormDialog.tsx
+  job-form/AddJobButton.tsx
   dashboard/StatTile.tsx
   ui/                     # shadcn generated
 lib/
-  db.ts                   # PrismaClient singleton
+  db.ts                   # PrismaClient singleton (better-sqlite3 adapter)
+  jobs.ts                 # writes: upsertJob, setJobStatus, removeJob, company reuse
+  queries.ts              # reads: board jobs, company names, dashboard facts
+  types.ts                # JobDTO passed to client components
   status.ts               # STATUSES, COLUMNS, applyStatusChange()
   analytics.ts            # pure metric functions
   validation.ts           # zod jobInput schema
@@ -57,8 +63,7 @@ proxy.ts                  # optional Basic auth (Next 16)
 prisma/schema.prisma
 prisma7.config.ts         # Prisma 7 CLI config: schema path + DATABASE_URL
 generated/prisma/         # Prisma client output (gitignored)
-tests/analytics.test.ts
-tests/status.test.ts
+tests/                    # vitest: status, validation, analytics
 ```
 
 ### Data schema (`prisma/schema.prisma`)
@@ -353,22 +358,26 @@ Backup = copy `prisma/dev.db`.
 `Dockerfile`:
 
 ```dockerfile
-FROM node:22-slim AS build
-RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+# Local, single-container Jobsy with SQLite persisted in a volume at /data.
+FROM node:24-slim AS build
+RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
+# lib/db.ts requires DATABASE_URL at import time; nothing connects during the build.
+ENV DATABASE_URL="file:/data/jobsy.db"
 RUN npm run build
 
-FROM node:22-slim
-RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+FROM node:24-slim
+RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 ENV NODE_ENV=production DATABASE_URL="file:/data/jobsy.db"
 COPY --from=build /app ./
 VOLUME /data
 EXPOSE 3000
-CMD ["sh", "-c", "npx prisma db push && npm start"]   # client already generated at build
+# Create/upgrade the schema in the volume, then serve. The Prisma client was generated at build time.
+CMD ["sh", "-c", "npx prisma db push && npm start"]
 ```
 
 ```bash
